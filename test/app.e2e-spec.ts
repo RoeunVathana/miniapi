@@ -3,14 +3,20 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import { PrismaService } from '../src/database/prisma.service';
+import { createPrismaMock } from './prisma.mock';
 
 describe('MiniShopStore API (e2e)', () => {
   let app: INestApplication;
+  const prismaMock = createPrismaMock();
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(PrismaService)
+      .useValue(prismaMock)
+      .compile();
 
     app = moduleFixture.createNestApplication({ bodyParser: false });
     configureApp(app);

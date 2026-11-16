@@ -3,7 +3,7 @@
   "info": {
     "title": "MiniShopStore API",
     "version": "1.0.0",
-    "description": "Teaching-friendly NestJS API for products and users. Data is stored in memory and resets when the server restarts."
+    "description": "Teaching-friendly NestJS API for products and users. Data is stored in PostgreSQL through Prisma."
   },
   "servers": [
     {

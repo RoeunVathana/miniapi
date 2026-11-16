@@ -1,98 +1,88 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from '../database/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './interfaces/product.interface';
 
 @Injectable()
 export class ProductsService {
-  private nextId = 4;
+  constructor(private readonly prisma: PrismaService) {}
 
-  private readonly products: Product[] = [
-    {
-      id: 1,
-      name: 'Wireless Headphones',
-      description: 'Comfortable headphones for everyday listening.',
-      price: 49.99,
-      category: 'electronics',
-      stock: 12,
-      imageUrl: 'https://placehold.co/600x400?text=Headphones',
-      createdAt: '2026-01-10T08:00:00.000Z',
-      updatedAt: '2026-01-10T08:00:00.000Z',
-    },
-    {
-      id: 2,
-      name: 'Canvas Backpack',
-      description: 'A light backpack for school and short trips.',
-      price: 35,
-      category: 'bags',
-      stock: 8,
-      imageUrl: 'https://placehold.co/600x400?text=Backpack',
-      createdAt: '2026-01-11T08:00:00.000Z',
-      updatedAt: '2026-01-11T08:00:00.000Z',
-    },
-    {
-      id: 3,
-      name: 'Ceramic Coffee Mug',
-      description: 'A simple mug for coffee, tea, or hot chocolate.',
-      price: 12.5,
-      category: 'home',
-      stock: 24,
-      imageUrl: 'https://placehold.co/600x400?text=Mug',
-      createdAt: '2026-01-12T08:00:00.000Z',
-      updatedAt: '2026-01-12T08:00:00.000Z',
-    },
-  ];
+  async findAll(category?: string) {
+    const products = await this.prisma.product.findMany({
+      where: category
+        ? { category: { equals: category, mode: 'insensitive' } }
+        : undefined,
+      orderBy: { id: 'asc' },
+    });
 
-  findAll(category?: string) {
-    if (!category) {
-      return this.products;
-    }
-
-    return this.products.filter(
-      (product) => product.category.toLowerCase() === category.toLowerCase(),
-    );
+    return products.map((product) => this.toResponse(product));
   }
 
-  findOne(id: number) {
-    const product = this.products.find((item) => item.id === id);
+  async findOne(id: number) {
+    const product = await this.prisma.product.findUnique({ where: { id } });
 
     if (!product) {
       throw new NotFoundException(`Product with id ${id} was not found`);
     }
 
-    return product;
+    return this.toResponse(product);
   }
 
-  create(createProductDto: CreateProductDto) {
-    const now = new Date().toISOString();
-    const product: Product = {
-      id: this.nextId++,
-      ...createProductDto,
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    this.products.push(product);
-    return product;
-  }
-
-  update(id: number, updateProductDto: UpdateProductDto) {
-    const product = this.findOne(id);
-    Object.assign(product, updateProductDto, {
-      updatedAt: new Date().toISOString(),
+  async create(createProductDto: CreateProductDto) {
+    const product = await this.prisma.product.create({
+      data: {
+        name: createProductDto.name,
+        description: createProductDto.description,
+        price: new Prisma.Decimal(createProductDto.price),
+        category: createProductDto.category,
+        stock: createProductDto.stock,
+        imageUrl: createProductDto.imageUrl,
+      },
     });
 
-    return product;
+    return this.toResponse(product);
   }
 
-  remove(id: number) {
-    const productIndex = this.products.findIndex((item) => item.id === id);
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    await this.findOne(id);
 
-    if (productIndex === -1) {
-      throw new NotFoundException(`Product with id ${id} was not found`);
-    }
+    const product = await this.prisma.product.update({
+      where: { id },
+      data: {
+        name: updateProductDto.name,
+        description: updateProductDto.description,
+        price:
+          updateProductDto.price === undefined
+            ? undefined
+            : new Prisma.Decimal(updateProductDto.price),
+        category: updateProductDto.category,
+        stock: updateProductDto.stock,
+        imageUrl: updateProductDto.imageUrl,
+      },
+    });
 
-    const [deletedProduct] = this.products.splice(productIndex, 1);
-    return deletedProduct;
+    return this.toResponse(product);
+  }
+
+  async remove(id: number) {
+    await this.findOne(id);
+    const product = await this.prisma.product.delete({ where: { id } });
+    return this.toResponse(product);
+  }
+
+  private toResponse(product: Prisma.ProductGetPayload<{}>): Product {
+    return {
+      id: product.id,
+      name: product.name,
+      description: product.description ?? undefined,
+      price: Number(product.price),
+      category: product.category,
+      stock: product.stock,
+      imageUrl: product.imageUrl ?? undefined,
+      createdAt: product.createdAt.toISOString(),
+      updatedAt: product.updatedAt.toISOString(),
+    };
   }
 }

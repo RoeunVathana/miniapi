@@ -11,13 +11,22 @@ MiniShopStore is a beginner-friendly NestJS REST API. It demonstrates:
 - E2E API testing with Supertest
 - Basic API hardening with Helmet, throttling, CORS, and an admin API key
 
-The current data store is an in-memory array. Restarting the server resets the sample data.
+The API stores products and users in PostgreSQL through Prisma. A migration and seed script are included so a student can create the database from pgAdmin and inspect the tables.
 
 ## Run the project
 
 ```bash
 npm install
 npm run start:dev
+```
+
+Before starting, copy `.env.example` to `.env`, create a PostgreSQL database named `minishopstore` in pgAdmin, and set `DATABASE_URL` to the connection string.
+
+```powershell
+Copy-Item .env.example .env
+npm run db:generate
+npm run db:migrate:deploy
+npm run db:seed
 ```
 
 The API base URL is:
@@ -131,8 +140,8 @@ Content-Type: application/json
 4. Change a DTO validation rule and observe the HTTP 400 response.
 5. Remove the API key and observe the HTTP 401 response.
 6. Add a new route and write an e2e test for it.
-7. Replace the in-memory arrays with a database when the class is ready.
+7. Open the PostgreSQL tables in pgAdmin and compare them with the Prisma schema.
 
 ## Production roadmap
 
-This project intentionally uses a simple teaching key. A production application should add JWT or session authentication, hashed passwords, a database, role-based authorization, secret management, audit logging, and HTTPS.
+This project intentionally uses a simple teaching key. A production application should add JWT or session authentication, hashed passwords, database-backed role authorization, secret management, audit logging, and HTTPS.

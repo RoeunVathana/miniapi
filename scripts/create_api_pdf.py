@@ -242,7 +242,7 @@ def build_story():
             Spacer(1, 13 * mm),
             p("A practical reference for learning NestJS modules, controllers, services, DTO validation, HTTP testing, and introductory API security.", "BodyCustom"),
             Spacer(1, 4 * mm),
-            p("The project uses in-memory data so students can start immediately. Restarting the server resets the sample data.", "SmallCustom"),
+            p("The project uses PostgreSQL through Prisma. A migration and seed script make the database easy to inspect in pgAdmin.", "SmallCustom"),
             Spacer(1, 17 * mm),
             p("Base URL", "H2Custom"),
             code("http://localhost:3000/api"),
@@ -262,6 +262,7 @@ def build_story():
             p("Health check:", "H2Custom"),
             code("GET http://localhost:3000/api/health"),
             p("The seeded API returns three products and two users. The request examples in requests.http can be opened in VS Code with a REST client extension.", "BodyCustom"),
+            p("For local setup, create a database named minishopstore in pgAdmin, set DATABASE_URL in .env, then run the migration and seed commands.", "BodyCustom"),
         ]
     )
 
@@ -332,7 +333,7 @@ def build_story():
     lesson_rows = [
         ("1", "main.ts and app.setup.ts", "Global prefix, Helmet, CORS, validation"),
         ("2", "ProductsController", "Routes, params, query, request bodies"),
-        ("3", "ProductsService", "Business logic and in-memory data"),
+        ("3", "ProductsService", "Business logic and Prisma queries"),
         ("4", "DTO files", "Validation rules and HTTP 400 responses"),
         ("5", "AdminApiKeyGuard", "HTTP 401 responses and protected writes"),
         ("6", "app.e2e-spec.ts", "Automated API behavior tests"),
@@ -342,7 +343,7 @@ def build_story():
     story.extend(
         [
             p("6. Production roadmap", "H1Custom"),
-            bullet("Replace in-memory arrays with PostgreSQL and Prisma or TypeORM."),
+            bullet("Use PostgreSQL through Prisma and inspect the tables with pgAdmin."),
             bullet("Add JWT or session authentication."),
             bullet("Hash passwords with a password-hashing library; never store plain passwords."),
             bullet("Use database-backed roles and authorization rules."),

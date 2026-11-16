@@ -3,108 +3,98 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from '../database/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserRole } from './interfaces/user.interface';
 
 @Injectable()
 export class UsersService {
-  private nextId = 3;
+  constructor(private readonly prisma: PrismaService) {}
 
-  private readonly users: User[] = [
-    {
-      id: 1,
-      name: 'Alice Customer',
-      email: 'alice@example.com',
-      role: 'customer',
-      isActive: true,
-      createdAt: '2026-01-10T08:00:00.000Z',
-      updatedAt: '2026-01-10T08:00:00.000Z',
-    },
-    {
-      id: 2,
-      name: 'Admin User',
-      email: 'admin@example.com',
-      role: 'admin',
-      isActive: true,
-      createdAt: '2026-01-10T08:00:00.000Z',
-      updatedAt: '2026-01-10T08:00:00.000Z',
-    },
-  ];
+  async findAll(role?: UserRole) {
+    const users = await this.prisma.user.findMany({
+      where: role ? { role } : undefined,
+      orderBy: { id: 'asc' },
+    });
 
-  findAll(role?: UserRole) {
-    if (!role) {
-      return this.users;
-    }
-
-    return this.users.filter((user) => user.role === role);
+    return users.map((user) => this.toResponse(user));
   }
 
-  findOne(id: number) {
-    const user = this.users.find((item) => item.id === id);
+  async findOne(id: number) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
 
     if (!user) {
       throw new NotFoundException(`User with id ${id} was not found`);
     }
 
-    return user;
+    return this.toResponse(user);
   }
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     const email = createUserDto.email.toLowerCase();
-    this.ensureEmailIsAvailable(email);
+    await this.ensureEmailIsAvailable(email);
 
-    const now = new Date().toISOString();
-    const user: User = {
-      id: this.nextId++,
-      name: createUserDto.name,
-      email,
-      role: 'customer',
-      isActive: true,
-      createdAt: now,
-      updatedAt: now,
-    };
+    const user = await this.prisma.user.create({
+      data: {
+        name: createUserDto.name,
+        email,
+        role: 'customer',
+        isActive: true,
+      },
+    });
 
-    this.users.push(user);
-    return user;
+    return this.toResponse(user);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    const user = this.findOne(id);
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    await this.findOne(id);
 
+    let email: string | undefined;
     if (updateUserDto.email) {
-      const email = updateUserDto.email.toLowerCase();
-      this.ensureEmailIsAvailable(email, id);
-      user.email = email;
+      email = updateUserDto.email.toLowerCase();
+      await this.ensureEmailIsAvailable(email, id);
     }
 
-    if (updateUserDto.name !== undefined) user.name = updateUserDto.name;
-    if (updateUserDto.role !== undefined) user.role = updateUserDto.role;
-    if (updateUserDto.isActive !== undefined)
-      user.isActive = updateUserDto.isActive;
-    user.updatedAt = new Date().toISOString();
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: {
+        name: updateUserDto.name,
+        email,
+        role: updateUserDto.role,
+        isActive: updateUserDto.isActive,
+      },
+    });
 
-    return user;
+    return this.toResponse(user);
   }
 
-  remove(id: number) {
-    const userIndex = this.users.findIndex((item) => item.id === id);
-
-    if (userIndex === -1) {
-      throw new NotFoundException(`User with id ${id} was not found`);
-    }
-
-    const [deletedUser] = this.users.splice(userIndex, 1);
-    return deletedUser;
+  async remove(id: number) {
+    await this.findOne(id);
+    const user = await this.prisma.user.delete({ where: { id } });
+    return this.toResponse(user);
   }
 
-  private ensureEmailIsAvailable(email: string, currentUserId?: number) {
-    const emailInUse = this.users.some(
-      (user) => user.email === email && user.id !== currentUserId,
-    );
+  private async ensureEmailIsAvailable(email: string, currentUserId?: number) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
 
-    if (emailInUse) {
+    if (existingUser && existingUser.id !== currentUserId) {
       throw new ConflictException(`Email ${email} is already in use`);
     }
+  }
+
+  private toResponse(user: Prisma.UserGetPayload<{}>): User {
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    };
   }
 }
