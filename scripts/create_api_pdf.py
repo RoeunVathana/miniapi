@@ -10,6 +10,7 @@ from reportlab.platypus import (
     Frame,
     KeepTogether,
     PageTemplate,
+    PageBreak,
     Paragraph,
     Preformatted,
     Spacer,
@@ -243,6 +244,8 @@ def build_story():
             p("A practical reference for learning NestJS modules, controllers, services, DTO validation, HTTP testing, and introductory API security.", "BodyCustom"),
             Spacer(1, 4 * mm),
             p("The project uses PostgreSQL through Prisma. A migration and seed script make the database easy to inspect in pgAdmin.", "SmallCustom"),
+            Spacer(1, 4 * mm),
+            p("Production URL: https://miniapi-production-3e1bc0d9.up.railway.app/api", "SmallCustom"),
             Spacer(1, 17 * mm),
             p("Base URL", "H2Custom"),
             code("http://localhost:3000/api"),
@@ -254,7 +257,7 @@ def build_story():
         ]
     )
 
-    story.extend([Spacer(1, 7 * mm), p("1. Quick start", "H1Custom")])
+    story.extend([PageBreak(), p("1. Quick start", "H1Custom")])
     story.extend(
         [
             p("Install dependencies and start the development server. The API will listen on port 3000 unless PORT is changed.", "BodyCustom"),
@@ -263,6 +266,7 @@ def build_story():
             code("GET http://localhost:3000/api/health"),
             p("The seeded API returns three products and two users. The request examples in requests.http can be opened in VS Code with a REST client extension.", "BodyCustom"),
             p("For local setup, create a database named minishopstore in pgAdmin, set DATABASE_URL in .env, then run the migration and seed commands.", "BodyCustom"),
+            p("The OpenAPI JSON file is docs/minishopstore-api.json. Import it into Swagger UI or Postman. Its AdminApiKey security scheme documents the x-api-key header without exposing the production secret.", "BodyCustom"),
         ]
     )
 

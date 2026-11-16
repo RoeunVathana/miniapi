@@ -35,6 +35,24 @@ The API base URL is:
 http://localhost:3000/api
 ```
 
+The deployed Railway API is:
+
+```text
+https://miniapi-production-3e1bc0d9.up.railway.app/api
+```
+
+Health check:
+
+```text
+https://miniapi-production-3e1bc0d9.up.railway.app/api/health
+```
+
+## OpenAPI JSON and API key
+
+The machine-readable OpenAPI document is `docs/minishopstore-api.json`. Import it into Swagger UI, Postman, or another API client. The protected endpoints use the `x-api-key` header described by the `AdminApiKey` security scheme.
+
+Never put the real production key in this JSON file, source code, or Git. Set it as the Railway `ADMIN_API_KEY` variable. The `local-teaching-key` value is only a local classroom fallback.
+
 Useful checks:
 
 ```bash

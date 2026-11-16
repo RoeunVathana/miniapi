@@ -7,6 +7,10 @@
   },
   "servers": [
     {
+      "url": "https://miniapi-production-3e1bc0d9.up.railway.app/api",
+      "description": "Railway production server"
+    },
+    {
       "url": "http://localhost:3000/api",
       "description": "Local development server"
     }
