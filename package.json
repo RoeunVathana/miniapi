@@ -4,6 +4,9 @@
   "description": "A teaching-friendly NestJS API for MiniShopStore",
   "private": true,
   "license": "MIT",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -32,8 +35,10 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "helmet": "^8.3.0",
+    "prisma": "^6.19.3",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2"
+    "rxjs": "^7.8.2",
+    "tsx": "^4.20.6"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",
@@ -46,14 +51,12 @@
     "eslint": "^9.22.0",
     "jest": "^29.7.0",
     "prettier": "^3.5.3",
-    "prisma": "^6.19.3",
     "source-map-support": "^0.5.21",
     "supertest": "^7.1.0",
     "ts-jest": "^29.2.6",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "tsx": "^4.20.6",
     "typescript": "^5.7.3"
   },
   "prisma": {
