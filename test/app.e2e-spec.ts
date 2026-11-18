@@ -71,12 +71,20 @@ describe('MiniShopStore API (e2e)', () => {
       });
   });
 
-  it('POST /api/products rejects invalid input', () => {
-    return request(app.getHttpServer())
+  it('POST /api/products rejects invalid input with field details', async () => {
+    const response = await request(app.getHttpServer())
       .post('/api/products')
       .set('x-api-key', 'local-teaching-key')
-      .send({ name: 'X', price: -1, category: 'home', stock: -5 })
-      .expect(400);
+      .send({ name: 'X', price: -1, category: 'home', stock: -5 });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('Validation failed');
+    expect(response.body.details).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ field: 'price' }),
+        expect.objectContaining({ field: 'stock' }),
+      ]),
+    );
   });
 
   it('GET /api/products/:id returns 404 for an unknown product', () => {

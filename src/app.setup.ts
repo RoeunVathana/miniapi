@@ -1,4 +1,9 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import {
+  BadRequestException,
+  INestApplication,
+  ValidationError,
+  ValidationPipe,
+} from '@nestjs/common';
 import { json, urlencoded } from 'express';
 import helmet from 'helmet';
 
@@ -23,7 +28,16 @@ export function configureApp(app: INestApplication) {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
-      disableErrorMessages: process.env.NODE_ENV === 'production',
+      exceptionFactory: (errors: ValidationError[]) =>
+        new BadRequestException({
+          statusCode: 400,
+          error: 'Bad Request',
+          message: 'Validation failed',
+          details: errors.map((error) => ({
+            field: error.property,
+            messages: Object.values(error.constraints ?? {}),
+          })),
+        }),
     }),
   );
 }
