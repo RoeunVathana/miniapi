@@ -267,6 +267,12 @@ def build_story():
             p("The seeded API returns three products and two users. The request examples in requests.http can be opened in VS Code with a REST client extension.", "BodyCustom"),
             p("For local setup, create a database named minishopstore in pgAdmin, set DATABASE_URL in .env, then run the migration and seed commands.", "BodyCustom"),
             p("The OpenAPI JSON file is docs/minishopstore-api.json. Import it into Swagger UI or Postman. Its AdminApiKey security scheme documents the x-api-key header without exposing the production secret.", "BodyCustom"),
+            p("Deployment client settings:", "H2Custom"),
+            code('{"baseUrl":"https://miniapi-production-3e1bc0d9.up.railway.app/api",\n'
+                 ' "healthUrl":"https://miniapi-production-3e1bc0d9.up.railway.app/api/health",\n'
+                 ' "apiKeyHeader":"x-api-key",\n'
+                 ' "apiKey":"REPLACE_WITH_ADMIN_API_KEY"}'),
+            p("Replace the placeholder only in your local environment. Never commit the real Railway key.", "SmallCustom"),
         ]
     )
 

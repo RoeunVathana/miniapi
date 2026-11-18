@@ -53,6 +53,8 @@ The machine-readable OpenAPI document is `docs/minishopstore-api.json`. Import i
 
 Never put the real production key in this JSON file, source code, or Git. Set it as the Railway `ADMIN_API_KEY` variable. The `local-teaching-key` value is only a local classroom fallback.
 
+For a client configuration example, use `docs/deployment-config.example.json`. Replace `REPLACE_WITH_ADMIN_API_KEY` locally; do not commit the real value.
+
 Useful checks:
 
 ```bash
