@@ -8,9 +8,7 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
-import { AdminApiKeyGuard } from '../common/guards/admin-api-key.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRole } from './interfaces/user.interface';
@@ -36,7 +34,6 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UseGuards(AdminApiKeyGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -45,7 +42,6 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @UseGuards(AdminApiKeyGuard)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
   }

@@ -8,9 +8,7 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
-import { AdminApiKeyGuard } from '../common/guards/admin-api-key.guard';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsService } from './products.service';
@@ -30,13 +28,11 @@ export class ProductsController {
   }
 
   @Post()
-  @UseGuards(AdminApiKeyGuard)
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
 
   @Patch(':id')
-  @UseGuards(AdminApiKeyGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductDto: UpdateProductDto,
@@ -45,7 +41,6 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  @UseGuards(AdminApiKeyGuard)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.remove(id);
   }

@@ -14,7 +14,6 @@ GET {{baseUrl}}/products/1
 
 ### Create a product
 POST {{baseUrl}}/products
-x-api-key: local-teaching-key
 Content-Type: application/json
 
 {
@@ -28,7 +27,6 @@ Content-Type: application/json
 
 ### Update a product
 PATCH {{baseUrl}}/products/1
-x-api-key: local-teaching-key
 Content-Type: application/json
 
 {
@@ -38,7 +36,6 @@ Content-Type: application/json
 
 ### Delete a product
 DELETE {{baseUrl}}/products/3
-x-api-key: local-teaching-key
 
 ### List users
 GET {{baseUrl}}/users
@@ -57,7 +54,6 @@ Content-Type: application/json
 
 ### Update a user
 PATCH {{baseUrl}}/users/1
-x-api-key: local-teaching-key
 Content-Type: application/json
 
 {
@@ -66,4 +62,3 @@ Content-Type: application/json
 
 ### Delete a user
 DELETE {{baseUrl}}/users/2
-x-api-key: local-teaching-key

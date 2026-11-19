@@ -50,7 +50,6 @@ describe('MiniShopStore API (e2e)', () => {
   it('POST /api/products validates input and creates a product', () => {
     return request(app.getHttpServer())
       .post('/api/products')
-      .set('x-api-key', 'local-teaching-key')
       .send({
         name: 'Desk Lamp',
         description: 'A small lamp for a study desk.',
@@ -74,7 +73,6 @@ describe('MiniShopStore API (e2e)', () => {
   it('POST /api/products rejects invalid input with field details', async () => {
     const response = await request(app.getHttpServer())
       .post('/api/products')
-      .set('x-api-key', 'local-teaching-key')
       .send({ name: 'X', price: -1, category: 'home', stock: -5 });
 
     expect(response.status).toBe(400);
@@ -128,11 +126,11 @@ describe('MiniShopStore API (e2e)', () => {
       .expect(409);
   });
 
-  it('POST /api/products rejects missing admin credentials', () => {
+  it('POST /api/products is public when the admin key is removed', () => {
     return request(app.getHttpServer())
       .post('/api/products')
       .send({ name: 'Unsafe Product', price: 10, category: 'home', stock: 1 })
-      .expect(401);
+      .expect(201);
   });
 
   it('POST /api/users rejects self-assigned admin roles', () => {

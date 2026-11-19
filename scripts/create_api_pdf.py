@@ -225,7 +225,7 @@ def build_story():
             p("NestJS teaching and testing guide", "CoverSubtitle"),
             Table(
                 [[p("Products", "H2Custom"), p("Users", "H2Custom"), p("Security", "H2Custom")],
-                 [p("CRUD catalog API", "TableCell"), p("Registration and management", "TableCell"), p("Helmet, throttling, CORS, API key", "TableCell")]],
+                 [p("CRUD catalog API", "TableCell"), p("Registration and management", "TableCell"), p("Helmet, throttling, CORS", "TableCell")]],
                 colWidths=[55 * mm, 55 * mm, 60 * mm],
                 style=TableStyle(
                     [
@@ -266,13 +266,10 @@ def build_story():
             code("GET http://localhost:3000/api/health"),
             p("The seeded API returns three products and two users. The request examples in requests.http can be opened in VS Code with a REST client extension.", "BodyCustom"),
             p("For local setup, create a database named minishopstore in pgAdmin, set DATABASE_URL in .env, then run the migration and seed commands.", "BodyCustom"),
-            p("The OpenAPI JSON file is docs/minishopstore-api.json. Import it into Swagger UI or Postman. Its AdminApiKey security scheme documents the x-api-key header without exposing the production secret.", "BodyCustom"),
+            p("The OpenAPI JSON file is docs/minishopstore-api.json. Import it into Swagger UI or Postman. The API is configured with public CRUD routes for classroom testing.", "BodyCustom"),
             p("Deployment client settings:", "H2Custom"),
             code('{"baseUrl":"https://miniapi-production-3e1bc0d9.up.railway.app/api",\n'
-                 ' "healthUrl":"https://miniapi-production-3e1bc0d9.up.railway.app/api/health",\n'
-                 ' "apiKeyHeader":"x-api-key",\n'
-                 ' "apiKey":"REPLACE_WITH_ADMIN_API_KEY"}'),
-            p("Replace the placeholder only in your local environment. Never commit the real Railway key.", "SmallCustom"),
+                 ' "healthUrl":"https://miniapi-production-3e1bc0d9.up.railway.app/api/health"}'),
         ]
     )
 
@@ -282,16 +279,14 @@ def build_story():
         ("Throttling", "Limits each client to 100 requests per minute."),
         ("Body size", "Rejects JSON and form bodies over 100 KB."),
         ("CORS", "Allows only origins listed in CORS_ORIGINS."),
-        ("Admin key", "Protects product writes and user updates/deletes."),
+        ("Public writes", "Keeps classroom testing simple; add authentication before production."),
         ("Registration", "Always creates an active customer; no self-assigned admin role."),
     ]
     story.append(make_table(["Protection", "What it does"], security_rows, [38 * mm, 132 * mm]))
     story.extend(
         [
             Spacer(1, 4 * mm),
-            p("Local teaching key:", "H2Custom"),
-            code("x-api-key: local-teaching-key"),
-            p("Set a strong ADMIN_API_KEY and a real CORS_ORIGINS value before production. The local fallback key is for classroom testing only.", "BodyCustom"),
+            p("Before production, add JWT or session authentication and database-backed authorization. Keep a real CORS_ORIGINS value configured.", "BodyCustom"),
         ]
     )
 
@@ -300,22 +295,71 @@ def build_story():
         ("GET", "/api/health", "Public", "Service status"),
         ("GET", "/api/products", "Public", "List or filter products"),
         ("GET", "/api/products/:id", "Public", "Get one product"),
-        ("POST", "/api/products", "Admin key", "Create a product"),
-        ("PATCH", "/api/products/:id", "Admin key", "Update a product"),
-        ("DELETE", "/api/products/:id", "Admin key", "Delete a product"),
+        ("POST", "/api/products", "Public", "Create a product"),
+        ("PATCH", "/api/products/:id", "Public", "Update a product"),
+        ("DELETE", "/api/products/:id", "Public", "Delete a product"),
         ("GET", "/api/users", "Public", "List or filter users"),
         ("GET", "/api/users/:id", "Public", "Get one user"),
         ("POST", "/api/users", "Public", "Register a customer"),
-        ("PATCH", "/api/users/:id", "Admin key", "Update a user"),
-        ("DELETE", "/api/users/:id", "Admin key", "Delete a user"),
+        ("PATCH", "/api/users/:id", "Public", "Update a user"),
+        ("DELETE", "/api/users/:id", "Public", "Delete a user"),
     ]
     story.append(make_table(["Method", "Route", "Auth", "Purpose"], endpoint_rows, [18 * mm, 58 * mm, 30 * mm, 64 * mm]))
 
-    story.extend([p("4. Request examples", "H1Custom"), p("Create a product:", "H2Custom")])
+    story.extend([p("4. JSON keys and request process", "H1Custom")])
+    story.extend(
+        [
+            p("Every POST and PATCH request uses Content-Type: application/json. Send only the documented keys. Extra keys are rejected so students can see DTO validation clearly.", "BodyCustom"),
+            p("Product insert: POST /api/products", "H2Custom"),
+            make_table(
+                ["Key", "Type", "Required", "Rules"],
+                [
+                    ("name", "string", "Yes", "2-100 characters"),
+                    ("description", "string", "No", "Maximum 500 characters"),
+                    ("price", "number", "Yes", "0-1,000,000; max 2 decimals"),
+                    ("category", "string", "Yes", "2-50 characters"),
+                    ("stock", "integer", "Yes", "0-1,000,000"),
+                    ("imageUrl", "URL string", "No", "Must be a valid URL"),
+                ],
+                [32 * mm, 35 * mm, 25 * mm, 78 * mm],
+            ),
+            p("Product POST, PATCH, and DELETE are public in this classroom configuration. Do not send id, createdAt, or updatedAt in an insert body.", "SmallCustom"),
+            p("User insert: POST /api/users", "H2Custom"),
+            make_table(
+                ["Key", "Type", "Required", "Rules"],
+                [
+                    ("name", "string", "Yes", "2-100 characters"),
+                    ("email", "email string", "Yes", "Valid and unique email"),
+                ],
+                [32 * mm, 35 * mm, 25 * mm, 78 * mm],
+            ),
+            p("Public registration lowercases the email, sets role to customer, and sets isActive to true. Do not send role, isActive, id, createdAt, or updatedAt when registering.", "SmallCustom"),
+            p("User update: PATCH /api/users/:id", "H2Custom"),
+            code('{"name":"Updated Student","email":"updated@example.com",\n'
+                 ' "role":"customer","isActive":true}'),
+            p("Query and path keys", "H2Custom"),
+            make_table(
+                ["Location", "Key", "Example", "Meaning"],
+                [
+                    ("Path", "id", "/products/1", "Numeric record ID"),
+                    ("Query", "category", "/products?category=home", "Filter products"),
+                    ("Query", "role", "/users?role=admin", "Filter users"),
+                ],
+                [27 * mm, 31 * mm, 57 * mm, 55 * mm],
+            ),
+            p("Request process: choose the method and route, add /api, add the JSON header, send documented keys, then check the status code. 200 means read/update/delete succeeded, 201 means insert succeeded, 400 means validation failed, 404 means the record was not found, and 409 means the email is already used.", "BodyCustom"),
+            p("Common 400 response:", "H2Custom"),
+            code('{"statusCode":400,"error":"Bad Request",\n'
+                 ' "message":"Validation failed",\n'
+                 ' "details":[{"field":"email",\n'
+                 ' "messages":["email must be an email"]}]}'),
+        ]
+    )
+
+    story.extend([p("5. Request examples", "H1Custom"), p("Create a product:", "H2Custom")])
     story.append(
         code(
             "POST /api/products\n"
-            "x-api-key: local-teaching-key\n"
             "Content-Type: application/json\n\n"
             '{"name":"Mechanical Keyboard","price":79.99,\n'
             ' "category":"electronics","stock":15}'
@@ -329,30 +373,29 @@ def build_story():
             '{"name":"Bob Student","email":"bob@example.com"}'
         )
     )
-    story.extend([p("Update a user as an admin:", "H2Custom")])
+    story.extend([p("Update a user:", "H2Custom")])
     story.append(
         code(
             "PATCH /api/users/1\n"
-            "x-api-key: local-teaching-key\n"
             "Content-Type: application/json\n\n"
             '{"isActive":false,"role":"customer"}'
         )
     )
 
-    story.extend([p("5. Suggested student lesson", "H1Custom")])
+    story.extend([p("6. Suggested student lesson", "H1Custom")])
     lesson_rows = [
         ("1", "main.ts and app.setup.ts", "Global prefix, Helmet, CORS, validation"),
         ("2", "ProductsController", "Routes, params, query, request bodies"),
         ("3", "ProductsService", "Business logic and Prisma queries"),
         ("4", "DTO files", "Validation rules and HTTP 400 responses"),
-        ("5", "AdminApiKeyGuard", "HTTP 401 responses and protected writes"),
+        ("5", "Public CRUD routes", "HTTP methods and classroom testing"),
         ("6", "app.e2e-spec.ts", "Automated API behavior tests"),
     ]
     story.append(make_table(["Step", "File or topic", "Learning goal"], lesson_rows, [15 * mm, 65 * mm, 90 * mm]))
 
     story.extend(
         [
-            p("6. Production roadmap", "H1Custom"),
+            p("7. Production roadmap", "H1Custom"),
             bullet("Use PostgreSQL through Prisma and inspect the tables with pgAdmin."),
             bullet("Add JWT or session authentication."),
             bullet("Hash passwords with a password-hashing library; never store plain passwords."),

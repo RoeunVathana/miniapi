@@ -54,7 +54,6 @@ To inspect the data, register the same PostgreSQL server in pgAdmin and open the
 
 ```json
 POST /api/products
-x-api-key: local-teaching-key
 Content-Type: application/json
 
 {
@@ -89,17 +88,8 @@ User emails are normalized to lowercase and must be unique. Authentication and p
 - Requests are limited to 100 per minute per client.
 - JSON and form bodies are limited to 100 KB.
 - CORS allows only the origins in `CORS_ORIGINS`.
-- Product creation, updates, and deletes require the `x-api-key` header.
-- User updates and deletes require the `x-api-key` header.
+- Product and user CRUD routes are public for classroom testing.
 - Public user registration always creates an active `customer`; clients cannot self-assign `admin`.
-
-For local teaching, the default admin key is `local-teaching-key`. Set a strong `ADMIN_API_KEY` before production and never commit it to Git. Example protected request:
-
-```http
-POST /api/products
-x-api-key: local-teaching-key
-Content-Type: application/json
-```
 
 ## Test the API
 
@@ -126,7 +116,6 @@ npm run build
 ```text
 DATABASE_URL=${{Postgres.DATABASE_URL}}
 NODE_ENV=production
-ADMIN_API_KEY=<long-random-secret>
 CORS_ORIGINS=<your-frontend-origin>
 ```
 
@@ -134,6 +123,6 @@ CORS_ORIGINS=<your-frontend-origin>
 
 For production, use the database connection details from Railway in pgAdmin if you want to inspect the hosted database. Enable the database public connection only when needed and keep its credentials private.
 
-## Next step: authentication
+## Security note
 
-The next teaching step is JWT authentication with hashed passwords and database-backed role authorization. The current admin API key is intentionally a simple deployment guard for classroom testing.
+The API key guard has been removed to make classroom testing simple. This means anyone who can reach the API can create, update, or delete products and users. Do not use this public-write configuration for real customer data. The next teaching step is JWT authentication with hashed passwords and database-backed role authorization.

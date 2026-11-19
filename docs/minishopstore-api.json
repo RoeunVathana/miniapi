@@ -76,7 +76,6 @@
       "post": {
         "tags": ["Products"],
         "summary": "Create a product",
-        "security": [{"AdminApiKey": []}],
         "requestBody": {
           "required": true,
           "content": {
@@ -101,9 +100,6 @@
           "400": {
             "$ref": "#/components/responses/BadRequest"
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          }
         }
       }
     },
@@ -135,7 +131,6 @@
       "patch": {
         "tags": ["Products"],
         "summary": "Update a product",
-        "security": [{"AdminApiKey": []}],
         "requestBody": {
           "required": true,
           "content": {
@@ -157,9 +152,6 @@
               }
             }
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
           "404": {
             "$ref": "#/components/responses/NotFound"
           }
@@ -168,7 +160,6 @@
       "delete": {
         "tags": ["Products"],
         "summary": "Delete a product",
-        "security": [{"AdminApiKey": []}],
         "responses": {
           "200": {
             "description": "Deleted product",
@@ -179,9 +170,6 @@
                 }
               }
             }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
@@ -275,7 +263,6 @@
       "patch": {
         "tags": ["Users"],
         "summary": "Update a user",
-        "security": [{"AdminApiKey": []}],
         "requestBody": {
           "required": true,
           "content": {
@@ -297,9 +284,6 @@
               }
             }
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
           "404": {
             "$ref": "#/components/responses/NotFound"
           }
@@ -308,7 +292,6 @@
       "delete": {
         "tags": ["Users"],
         "summary": "Delete a user",
-        "security": [{"AdminApiKey": []}],
         "responses": {
           "200": {
             "description": "Deleted user",
@@ -320,9 +303,6 @@
               }
             }
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
           "404": {
             "$ref": "#/components/responses/NotFound"
           }
@@ -331,14 +311,6 @@
     }
   },
   "components": {
-    "securitySchemes": {
-      "AdminApiKey": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "x-api-key",
-        "description": "Use ADMIN_API_KEY. Local development fallback: local-teaching-key."
-      }
-    },
     "parameters": {
       "Id": {
         "name": "id",
@@ -369,10 +341,25 @@
     },
     "responses": {
       "BadRequest": {
-        "description": "Validation failed"
-      },
-      "Unauthorized": {
-        "description": "Missing or invalid admin API key"
+        "description": "Validation failed",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ValidationErrorResponse"
+            },
+            "example": {
+              "statusCode": 400,
+              "error": "Bad Request",
+              "message": "Validation failed",
+              "details": [
+                {
+                  "field": "email",
+                  "messages": ["email must be an email"]
+                }
+              ]
+            }
+          }
+        }
       },
       "NotFound": {
         "description": "Resource was not found"
@@ -397,6 +384,30 @@
           "timestamp": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "required": ["statusCode", "error", "message", "details"],
+        "properties": {
+          "statusCode": {"type": "integer", "example": 400},
+          "error": {"type": "string", "example": "Bad Request"},
+          "message": {"type": "string", "example": "Validation failed"},
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["field", "messages"],
+              "properties": {
+                "field": {"type": "string", "example": "email"},
+                "messages": {
+                  "type": "array",
+                  "items": {"type": "string"},
+                  "example": ["email must be an email"]
+                }
+              }
+            }
           }
         }
       },
