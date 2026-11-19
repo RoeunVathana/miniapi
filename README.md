@@ -9,7 +9,7 @@ npm install
 npm run start:dev
 ```
 
-The API is available at `http://localhost:3000/api`.
+For deployed testing, use `https://miniapi-production-3e1bc0d9.up.railway.app/api`. Local development uses `http://localhost:3000/api`.
 
 ## PostgreSQL and pgAdmin
 

@@ -29,13 +29,7 @@ npm run db:migrate:deploy
 npm run db:seed
 ```
 
-The API base URL is:
-
-```text
-http://localhost:3000/api
-```
-
-The deployed Railway API is:
+For testing the deployed server, use this Railway base URL:
 
 ```text
 https://miniapi-production-3e1bc0d9.up.railway.app/api
@@ -47,9 +41,15 @@ Health check:
 https://miniapi-production-3e1bc0d9.up.railway.app/api/health
 ```
 
+For local development only, use:
+
+```text
+http://localhost:3000/api
+```
+
 ## OpenAPI JSON
 
-The machine-readable OpenAPI document is `docs/minishopstore-api.json`. Import it into Swagger UI, Postman, or another API client. The client configuration example is `docs/deployment-config.example.json`.
+The machine-readable OpenAPI document is `docs/minishopstore-api.json`. Import it into Swagger UI, Postman, or another API client. It lists the Railway server first. The client configuration example is `docs/deployment-config.example.json`.
 
 Useful checks:
 

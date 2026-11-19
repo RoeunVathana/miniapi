@@ -1,4 +1,5 @@
-@baseUrl = http://localhost:3000/api
+@baseUrl = https://miniapi-production-3e1bc0d9.up.railway.app/api
+# These write examples change the Railway database. Use sample IDs carefully.
 
 ### Health check
 GET {{baseUrl}}/health
